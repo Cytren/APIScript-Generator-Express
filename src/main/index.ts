@@ -2,10 +2,11 @@
 import * as fs from 'fs';
 import * as del from 'del';
 import * as apiset from "apiset";
-import * as transform from "./core/text-transformers";
-import * as propertyWriter from "./core/property-writer";
+import * as transform from "./util/text-transformers";
+import * as propertyWriter from "./writer/property-writer";
 
-import {TypescriptWriter} from "./core/typescript-writer";
+import {TypescriptWriter} from "./writer/typescript-writer";
+import {writeRequestClasses} from "./writer/request-writer";
 
 export class ExpressGenerator implements apiset.Generator {
 
@@ -91,12 +92,7 @@ export class ExpressGenerator implements apiset.Generator {
         });
         writer.newLine();
 
-        api.forEachEndpoint((endpoint, index) => {
-            let url = transform.urlToDash(endpoint.url);
-
-            writer.writeLine(`import Request${index} from './request/${url}-` +
-                `${apiset.requestMethodToString(endpoint.requestMethod).toLowerCase()}';`);
-        });
+        writeRequestClasses(api, libDir, writer);
         writer.newLine();
 
         api.forEachEndpoint((endpoint, index) => {

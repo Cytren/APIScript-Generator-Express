@@ -1,6 +1,6 @@
 
 import * as apiset from "apiset";
-import * as transform from "./text-transformers";
+import * as transform from "../util/text-transformers";
 import {TypescriptWriter} from "./typescript-writer";
 
 function calculatePropertyTypeNames(propertyType: apiset.PropertyType, types = new Set<string>()): Set<string> {
@@ -29,7 +29,7 @@ function calculatePropertyTypeNames(propertyType: apiset.PropertyType, types = n
     return types;
 }
 
-function propertyTypeToString(propertyType: apiset.PropertyType): string {
+export function propertyTypeToString(propertyType: apiset.PropertyType): string {
 
     if (propertyType.isPrimitive) {
 
