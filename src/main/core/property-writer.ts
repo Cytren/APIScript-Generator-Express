@@ -21,43 +21,12 @@ function calculatePropertyTypeNames(propertyType: apiset.PropertyType, types = n
 
         } else if (propertyType.isMap) {
             let map = propertyType as apiset.MapPropertyType;
-            calculatePropertyTypeNames(map.keyType);
-            calculatePropertyTypeNames(map.valueType);
+            calculatePropertyTypeNames(map.keyType, types);
+            calculatePropertyTypeNames(map.valueType, types);
         }
     }
 
     return types;
-}
-
-export function writePropertyImports(writer: TypescriptWriter, propertyHolder: apiset.Entity | apiset.Endpoint) {
-    let importTypes = new Set<string>();
-
-    propertyHolder.forEachProperty((property) => {
-        let typeNames = calculatePropertyTypeNames(property.type);
-
-        typeNames.forEach((value) => {
-            importTypes.add(value);
-        });
-    });
-
-    importTypes.forEach((importType) => {
-        writer.writeLine(`import {${importType}} from './${transform.pascalToDash(importType)}';`);
-    });
-}
-
-export function writeProperty(writer: TypescriptWriter, property: apiset.Property) {
-    writer.indent();
-
-    writer.write(`public ${property.name}`);
-    if (property.isOptional) { writer.write('?'); }
-    writer.write(`: ${propertyTypeToString(property.type)}`);
-
-    if (property.type.isCollection || property.defaultValue) {
-        writer.write(` = ${propertyToInstantiationString(property)}`);
-    }
-
-    writer.write(`;`);
-    writer.newLine();
 }
 
 function propertyTypeToString(propertyType: apiset.PropertyType): string {
@@ -129,4 +98,35 @@ function propertyToInstantiationString(property: apiset.Property): string {
         return propertyType.toString();
     }
 
+}
+
+export function writePropertyImports(writer: TypescriptWriter, propertyHolder: apiset.Entity | apiset.Endpoint) {
+    let importTypes = new Set<string>();
+
+    propertyHolder.forEachProperty((property) => {
+        let typeNames = calculatePropertyTypeNames(property.type);
+
+        typeNames.forEach((value) => {
+            importTypes.add(value);
+        });
+    });
+
+    importTypes.forEach((importType) => {
+        writer.writeLine(`import {${importType}} from './${transform.pascalToDash(importType)}';`);
+    });
+}
+
+export function writeProperty(writer: TypescriptWriter, property: apiset.Property) {
+    writer.indent();
+
+    writer.write(`public ${property.name}`);
+    if (property.isOptional) { writer.write('?'); }
+    writer.write(`: ${propertyTypeToString(property.type)}`);
+
+    if (property.type.isCollection || property.defaultValue) {
+        writer.write(` = ${propertyToInstantiationString(property)}`);
+    }
+
+    writer.write(`;`);
+    writer.newLine();
 }
