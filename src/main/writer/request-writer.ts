@@ -1,16 +1,16 @@
 
-import * as apiset from 'apiset';
+import * as apiscript from 'apiscript';
 import * as transform from '../util/text-transformers';
 import * as propertyWriter from "./property-writer";
 
-import {API} from "apiset";
+import {API} from "apiscript";
 import {TypescriptWriter} from "./typescript-writer";
 
 export function writeRequestClasses(api: API, libDir: string, mainWriter: TypescriptWriter) {
 
     api.forEachEndpoint((endpoint, index) => {
         let url = transform.urlToDash(endpoint.url);
-        let fileName = `${url}-${apiset.requestMethodToString(endpoint.requestMethod).toLowerCase()}`;
+        let fileName = `${url}-${apiscript.requestMethodToString(endpoint.requestMethod).toLowerCase()}`;
 
         mainWriter.writeLine(`import Request${index} from './request/${fileName}';`);
 

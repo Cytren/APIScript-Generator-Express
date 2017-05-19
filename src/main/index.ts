@@ -1,20 +1,20 @@
 
 import * as fs from 'fs';
 import * as del from 'del';
-import * as apiset from "apiset";
+import * as apiscript from "apiscript";
 import * as transform from "./util/text-transformers";
 import * as propertyWriter from "./writer/property-writer";
 
 import {TypescriptWriter} from "./writer/typescript-writer";
 import {writeRequestClasses} from "./writer/request-writer";
 
-export class ExpressGenerator implements apiset.Generator {
+export class ExpressGenerator implements apiscript.Generator {
 
-    generate(api: apiset.API, config: apiset.Config) {
+    generate(api: apiscript.API, config: apiscript.Config) {
 
         // get the build dirs from config if available
         let buildDir = config.buildDir ? config.buildDir : 'build';
-        let libDir = buildDir + '/' + (config.libDir ? config.libDir : 'apiset');
+        let libDir = buildDir + '/' + (config.libDir ? config.libDir : 'apiscript');
         let apiDir = buildDir + '/' + (config.apiDir ? config.apiDir : 'api');
 
         // remove old lib directory
@@ -77,7 +77,7 @@ export class ExpressGenerator implements apiset.Generator {
             writer.close();
         });
 
-        let writer = new TypescriptWriter(`${libDir}/apiset.ts`);
+        let writer = new TypescriptWriter(`${libDir}/apiscript.ts`);
 
         writer.newLine();
         writer.writeLine('import {Express, Router} from "express";');
@@ -88,7 +88,7 @@ export class ExpressGenerator implements apiset.Generator {
             let url = transform.urlToDash(endpoint.url);
 
             writer.writeLine(`import endpoint${index} from '../api/${url}-` +
-                `${apiset.requestMethodToString(endpoint.requestMethod).toLowerCase()}';`);
+                `${apiscript.requestMethodToString(endpoint.requestMethod).toLowerCase()}';`);
         });
         writer.newLine();
 
@@ -99,7 +99,7 @@ export class ExpressGenerator implements apiset.Generator {
             let url = transform.urlToDash(endpoint.url);
 
             writer.writeLine(`import Response${index} from './response/${url}-` +
-                `${apiset.requestMethodToString(endpoint.requestMethod).toLowerCase()}';`);
+                `${apiscript.requestMethodToString(endpoint.requestMethod).toLowerCase()}';`);
         });
         writer.newLine();
 

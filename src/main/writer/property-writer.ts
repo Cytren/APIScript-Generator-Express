@@ -1,9 +1,9 @@
 
-import * as apiset from "apiset";
+import * as apiscript from "apiscript";
 import * as transform from "../util/text-transformers";
 import {TypescriptWriter} from "./typescript-writer";
 
-function calculatePropertyTypeNames(propertyType: apiset.PropertyType, types = new Set<string>()): Set<string> {
+function calculatePropertyTypeNames(propertyType: apiscript.PropertyType, types = new Set<string>()): Set<string> {
 
     if (propertyType.isEntity) {
         let name = propertyTypeToString(propertyType);
@@ -12,15 +12,15 @@ function calculatePropertyTypeNames(propertyType: apiset.PropertyType, types = n
     } else if (propertyType.isCollection) {
 
         if (propertyType.isList) {
-            let list = propertyType as apiset.ListPropertyType;
+            let list = propertyType as apiscript.ListPropertyType;
             calculatePropertyTypeNames(list.type, types);
 
         } else if (propertyType.isSet) {
-            let set = propertyType as apiset.SetPropertyType;
+            let set = propertyType as apiscript.SetPropertyType;
             calculatePropertyTypeNames(set.type, types);
 
         } else if (propertyType.isMap) {
-            let map = propertyType as apiset.MapPropertyType;
+            let map = propertyType as apiscript.MapPropertyType;
             calculatePropertyTypeNames(map.keyType, types);
             calculatePropertyTypeNames(map.valueType, types);
         }
@@ -29,7 +29,7 @@ function calculatePropertyTypeNames(propertyType: apiset.PropertyType, types = n
     return types;
 }
 
-export function propertyTypeToString(propertyType: apiset.PropertyType): string {
+export function propertyTypeToString(propertyType: apiscript.PropertyType): string {
 
     if (propertyType.isPrimitive) {
 
@@ -44,15 +44,15 @@ export function propertyTypeToString(propertyType: apiset.PropertyType): string 
     } else if (propertyType.isCollection) {
 
         if (propertyType.isList) {
-            let list = propertyType as apiset.ListPropertyType;
+            let list = propertyType as apiscript.ListPropertyType;
             return `${propertyTypeToString(list.type)}[]`;
         } else if (propertyType.isSet) {
-            let set = propertyType as apiset.SetPropertyType;
+            let set = propertyType as apiscript.SetPropertyType;
             let type = propertyTypeToString(set.type);
 
             return `Set<${type}>`;
         } else if (propertyType.isMap) {
-            let map = propertyType as apiset.MapPropertyType;
+            let map = propertyType as apiscript.MapPropertyType;
             let keyType = propertyTypeToString(map.keyType);
             let valueType = propertyTypeToString(map.valueType);
 
@@ -64,7 +64,7 @@ export function propertyTypeToString(propertyType: apiset.PropertyType): string 
     }
 }
 
-function propertyToInstantiationString(property: apiset.Property): string {
+function propertyToInstantiationString(property: apiscript.Property): string {
     let propertyType = property.type;
 
     if (propertyType.isPrimitive) {
@@ -82,12 +82,12 @@ function propertyToInstantiationString(property: apiset.Property): string {
         if (propertyType.isList) {
             return `[]`;
         } else if (propertyType.isSet) {
-            let set = propertyType as apiset.SetPropertyType;
+            let set = propertyType as apiscript.SetPropertyType;
             let type = propertyTypeToString(set.type);
 
             return `new Set<${type}>()`;
         } else if (propertyType.isMap) {
-            let map = propertyType as apiset.MapPropertyType;
+            let map = propertyType as apiscript.MapPropertyType;
             let keyType = propertyTypeToString(map.keyType);
             let valueType = propertyTypeToString(map.valueType);
 
@@ -100,7 +100,7 @@ function propertyToInstantiationString(property: apiset.Property): string {
 
 }
 
-export function writePropertyImports(writer: TypescriptWriter, propertyHolder: apiset.Entity | apiset.Endpoint) {
+export function writePropertyImports(writer: TypescriptWriter, propertyHolder: apiscript.Entity | apiscript.Endpoint) {
     let importTypes = new Set<string>();
 
     propertyHolder.forEachProperty((property) => {
@@ -116,7 +116,7 @@ export function writePropertyImports(writer: TypescriptWriter, propertyHolder: a
     });
 }
 
-export function writeProperty(writer: TypescriptWriter, property: apiset.Property) {
+export function writeProperty(writer: TypescriptWriter, property: apiscript.Property) {
     writer.indent();
 
     writer.write(`public ${property.name}`);

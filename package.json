@@ -1,5 +1,5 @@
 {
-  "name": "@apiset/express",
+  "name": "@apiscript/express",
   "version": "1.0.0",
   "main": "build/main/index.js",
   "description": "",
@@ -7,8 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "@apiset",
-    "apiset",
+    "@apiscript",
+    "apiscript",
     "generator",
     "express"
   ],
@@ -22,7 +22,7 @@
     "gulp-json-editor": "^2.2.1",
     "gulp-sequence": "^0.4.6",
     "gulp-typescript": "^3.1.6",
-    "apiset": "^1.0.0",
+    "apiscript": "^1.0.0",
     "typescript": "^2.3.2"
   },
   "dependencies": {
