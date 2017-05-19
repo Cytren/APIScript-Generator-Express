@@ -15,12 +15,11 @@ gulp.task('clean:package', function() {
 
 gulp.task('build', ['clean:build'], function() {
 
-	return gulp.src('src/**/*.ts')
-		.pipe(typescript({
-            module: 'commonjs',
-            target: 'es6'
-		}))
-		.pipe(gulp.dest('build'));
+    var config = typescript.createProject('tsconfig.json');
+
+    return gulp.src('src/**/*.ts')
+        .pipe(config())
+        .pipe(gulp.dest('build'));
 });
 
 gulp.task('package:package.json', function() {

@@ -3,7 +3,7 @@ import * as apiset from 'apiset';
 import * as transform from '../util/text-transformers';
 import * as propertyWriter from "./property-writer";
 
-import {API} from "apiset/api/api";
+import {API} from "apiset";
 import {TypescriptWriter} from "./typescript-writer";
 
 export function writeRequestClasses(api: API, libDir: string, mainWriter: TypescriptWriter) {
