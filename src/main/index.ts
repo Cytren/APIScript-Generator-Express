@@ -7,6 +7,7 @@ import * as propertyWriter from "./writer/property-writer";
 
 import {TypescriptWriter} from "./writer/typescript-writer";
 import {writeRequestClasses} from "./writer/request-writer";
+import {writeResponseClasses} from "./writer/response-writer";
 
 export class ExpressGenerator implements apiscript.Generator {
 
@@ -95,12 +96,7 @@ export class ExpressGenerator implements apiscript.Generator {
         writeRequestClasses(api, libDir, writer);
         writer.newLine();
 
-        api.forEachEndpoint((endpoint, index) => {
-            let url = transform.urlToDash(endpoint.url);
-
-            writer.writeLine(`import Response${index} from './response/${url}-` +
-                `${apiscript.requestMethodToString(endpoint.requestMethod).toLowerCase()}';`);
-        });
+        writeResponseClasses(api, libDir, writer);
         writer.newLine();
 
         writer.openFunction(null, true, true, [['app', 'Express']]);

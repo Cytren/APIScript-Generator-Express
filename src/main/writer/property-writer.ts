@@ -3,7 +3,7 @@ import * as apiscript from "apiscript";
 import * as transform from "../util/text-transformers";
 import {TypescriptWriter} from "./typescript-writer";
 
-function calculatePropertyTypeNames(propertyType: apiscript.PropertyType, types = new Set<string>()): Set<string> {
+export function calculatePropertyTypeNames(propertyType: apiscript.PropertyType, types = new Set<string>()): Set<string> {
 
     if (propertyType.isEntity) {
         let name = propertyTypeToString(propertyType);
