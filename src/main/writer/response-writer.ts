@@ -1,7 +1,7 @@
 
 import * as apiscript from "apiscript";
 import * as transform from "../util/text-transformers";
-import * as propertyWriter from "./property-writer";
+import * as propertyUtil from "../util/property-util";
 
 import {API} from "apiscript";
 import {TypescriptWriter} from "./typescript-writer";
@@ -31,7 +31,7 @@ export function writeResponseClasses(api: API, libDir: string, mainWriter: Types
             if (returnType.isString) { inheritanceType = 'StringResponse'; }
 
         } else if (returnType.isEntity || returnType.isCollection) {
-            let propertyTypes = propertyWriter.calculatePropertyTypeNames(returnType);
+            let propertyTypes = propertyUtil.calculatePropertyTypeNames(returnType);
 
             propertyTypes.forEach((type) => {
                 writer.write(`import {${type}} from './entity/${transform.pascalToDash(type)}';`);
@@ -51,7 +51,7 @@ export function writeResponseClasses(api: API, libDir: string, mainWriter: Types
             writer.newLine(2);
             writer.indent();
 
-            let returnString = propertyWriter.propertyTypeToString(returnType);
+            let returnString = propertyUtil.propertyTypeToString(returnType);
             let fieldName = returnType.isEntity ? transform.pascalToCamel(returnString) : 'values';
 
             writer.write(`public value(${fieldName}: ${returnString}) `);

@@ -1,8 +1,9 @@
 
-import {API, Entity} from "apiscript";
+import {API, Entity, PropertyType, ListPropertyType, SetPropertyType, MapPropertyType} from "apiscript";
 import {TypescriptWriter} from "./typescript-writer";
 
-import * as propertyWriter from "./property-writer";
+import * as propertyWriter from "../writer/property-writer";
+import * as propertyUtil from "../util/property-util";
 import * as transform from "../util/text-transformers";
 
 export function writeEntityClasses(api: API, libDir: string) {
@@ -15,7 +16,7 @@ export function writeEntityClasses(api: API, libDir: string) {
         console.log(`Generating entity ${entity.name}`);
 
         writeEntityClass(entity, libDir, name, fileName);
-        writeParseClass(entity, libDir, name, fileName);
+        writeParseFunction(entity, libDir, name, fileName);
     });
 }
 
@@ -24,7 +25,7 @@ function writeEntityClass(entity: Entity, libDir: string, name: string, fileName
     let writer = new TypescriptWriter(`${libDir}/entity/${fileName}.ts`);
     writer.newLine();
 
-    let importCount = propertyWriter.writePropertyImports(writer, entity);
+    let importCount = propertyWriter.writePropertyImports('.', writer, entity);
     if (importCount > 0) { writer.newLine(); }
 
     if (entity.inherits) {
@@ -46,17 +47,28 @@ function writeEntityClass(entity: Entity, libDir: string, name: string, fileName
     writer.close();
 }
 
-function writeParseClass(entity: Entity, libDir: string, name: string, fileName: string) {
+function writeParseFunction(entity: Entity, libDir: string, name: string, fileName: string) {
 
     let writer = new TypescriptWriter(`${libDir}/parse/${fileName}.ts`);
     writer.newLine();
 
     let fieldName = transform.pascalToCamel(name);
 
-    writer.write(`import ${name} from '../entity/${fileName}';`);
-    writer.newLine(2);
+    writer.write(`import {${name}} from '../entity/${fileName}';`);
+    writer.newLine();
 
-    writer.write(`export default function parse (body: any): Account `);
+    writer.write(`import {parsePrimitive, parseList, parseSet, parseMap} from '../util/parse-util';`);
+    writer.newLine();
+
+    let importTypes = propertyUtil.calculatePropertyImports(entity);
+    importTypes.forEach((type) => {
+        writer.write(`import {parse${type}} from './${transform.pascalToDash(type)}';`);
+        writer.newLine();
+    });
+
+    writer.newLine();
+
+    writer.write(`export function parse${name} (body: any): ${name} `);
     writer.openClosure();
     writer.newLine();
 
@@ -65,19 +77,47 @@ function writeParseClass(entity: Entity, libDir: string, name: string, fileName:
     writer.newLine(2);
 
     entity.forEachProperty((property) => {
-        writer.indent();
-        writer.write(`${fileName}.${property.name} = body.${property.name};`);
-        writer.newLine();
+        if (!property.isOptional && !property.defaultValue) {
+
+            writer.indent();
+            writer.write(`if (!body.${property.name}) { throw new Error('${name}.${property.name} is missing'); }`);
+            writer.newLine();
+        }
     });
     writer.newLine();
 
     entity.forEachProperty((property) => {
-        if (!property.isOptional && !property.defaultValue) {
+        writer.indent();
+        let type = property.type;
+
+        if (type.isEntity || type.isCollection) {
+            writer.newLine();
 
             writer.indent();
-            writer.write(`if (!${fieldName}.${property.name}) { throw new Error('${name}.${property.name} is missing'); }`);
+            writer.write(`if (body.${property.name}) `);
+            writer.openClosure();
             writer.newLine();
+
+            writer.indent();
+
+            if (type.isEntity) {
+                writer.write(`${fileName}.${property.name} = parse${type}(${property.name});`);
+            } else if (type.isCollection) {
+
+                writer.write(`${fileName}.${property.name} = `);
+                writeParseEntity(type, writer);
+                writer.write(`(body.${property.name});`);
+            }
+
+            writer.newLine();
+            writer.subIndent();
+            writer.closeClosure();
+
+        } else {
+            writer.write(`${fileName}.${property.name} = body.${property.name};`);
         }
+
+        writer.newLine();
     });
     writer.newLine();
 
@@ -88,4 +128,39 @@ function writeParseClass(entity: Entity, libDir: string, name: string, fileName:
     writer.subIndent();
     writer.closeClosure();
     writer.close();
+}
+
+function writeParseEntity(type: PropertyType, writer: TypescriptWriter) {
+
+    if (type.isEntity) {
+        writer.write(`parse${type}`);
+    } else if (type.isCollection) {
+
+        if (type.isList) {
+            let list = type as ListPropertyType;
+
+            writer.write('parseList(');
+            writeParseEntity(list.type, writer);
+            writer.write(')');
+
+        } else if (type.isSet) {
+            let set = type as SetPropertyType;
+
+            writer.write('parseSet(');
+            writeParseEntity(set.type, writer);
+            writer.write(')');
+
+        } else if (type.isMap) {
+            let map = type as MapPropertyType;
+
+            writer.write('parseMap(');
+            writeParseEntity(map.keyType, writer);
+            writer.write(', ');
+            writeParseEntity(map.valueType, writer);
+            writer.write(')');
+        }
+
+    } else if (type.isPrimitive) {
+        writer.write(`parsePrimitive`);
+    }
 }

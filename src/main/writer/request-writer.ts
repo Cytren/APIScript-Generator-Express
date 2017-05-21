@@ -1,6 +1,7 @@
 
 import * as apiscript from 'apiscript';
 import * as transform from '../util/text-transformers';
+import * as propertyUtil from "../util/property-util";
 import * as propertyWriter from "./property-writer";
 
 import {API} from "apiscript";
@@ -18,7 +19,7 @@ export function writeRequestClasses(api: API, libDir: string, mainWriter: Typesc
         let writer = new TypescriptWriter(`${libDir}/request/${fileName}.ts`);
         writer.newLine();
 
-        let importCount = propertyWriter.writePropertyImports(writer, endpoint);
+        let importCount = propertyWriter.writePropertyImports('../entity', writer, endpoint);
         if (importCount > 0) { writer.newLine(); }
 
         writer.write('export default class Request ');
@@ -31,7 +32,7 @@ export function writeRequestClasses(api: API, libDir: string, mainWriter: Typesc
 
         if (endpoint.requestType) {
             writer.indent();
-            writer.write(`public body: ${propertyWriter.propertyTypeToString(endpoint.requestType)};`);
+            writer.write(`public body: ${propertyUtil.propertyTypeToString(endpoint.requestType)};`);
             writer.newLine();
         }
         writer.closeClosure();
