@@ -79,6 +79,11 @@ function writeParseClass(entity: Entity, libDir: string, name: string, fileName:
             writer.newLine();
         }
     });
+    writer.newLine();
+
+    writer.indent();
+    writer.write(`return ${fieldName};`);
+    writer.newLine();
 
     writer.subIndent();
     writer.closeClosure();
