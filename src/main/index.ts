@@ -99,7 +99,9 @@ export class ExpressGenerator implements apiscript.Generator {
         writeResponseClasses(api, libDir, writer);
         writer.newLine();
 
-        writer.openFunction(null, true, true, [['app', 'Express']]);
+        writer.write(`export default function (app: express) `);
+        writer.openClosure();
+
         writer.writeLine(`let router = new Router();`);
         writer.newLine();
 

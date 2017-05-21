@@ -16,24 +16,6 @@ export class TypescriptWriter {
         this.stream = fs.createWriteStream(file);
     }
 
-    public openFunction(name?: string, doesExport = false, isDefault = false, args: [string, string][] = []) {
-
-        if (doesExport) { this.write('export '); }
-        if (isDefault) { this.write('default '); }
-
-        this.write(`function `);
-        if (name) { this.write(`${name} `); }
-        this.write(`(`);
-
-        args.forEach((argument, index) => {
-            this.write(`${argument[0]}: ${argument[1]}`);
-            if (index != args.length - 1) { this.write(', '); }
-        });
-
-        this.write(`) `);
-        this.openClosure();
-    }
-
     public openClosure(pre?: string) {
         if (pre) { this.write(pre); }
         this.write('{\n');
