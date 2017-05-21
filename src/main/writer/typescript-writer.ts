@@ -6,8 +6,8 @@ import {WriteStream} from "fs";
 
 export class TypescriptWriter {
 
+    private readonly indentation = '    ';
     private closureIndex = 0;
-    private indentation = '';
 
     private stream: WriteStream;
 
@@ -16,33 +16,35 @@ export class TypescriptWriter {
         this.stream = fs.createWriteStream(file);
     }
 
-    public openClosure(pre?: string) {
-        if (pre) { this.write(pre); }
-        this.write('{\n');
-
+    public openClosure() {
+        this.write('{');
         this.closureIndex++;
-        this.indentation += '    ';
     }
 
-    public closeClosure(pre?: string) {
+    public closeClosure() {
         this.closureIndex--;
 
         if (this.closureIndex < 0) {
             throw new Error('Too many closures have been closed');
         }
 
-        this.indentation = this.indentation.substring(4, this.indentation.length);
-
-        if (pre) { this.write(pre); }
-        this.write('}\n');
+        this.write('}');
     }
 
-    public newLine(){
-        this.write('\n');
+    public newLine(amount: number = 1) {
+        for (let i = 0; i < amount; i++) { this.write('\n'); }
+    }
+
+    private writeIndent(amount: number) {
+        for (let i = 0; i < amount; i++) { this.write(this.indentation); }
     }
 
     public indent() {
-        this.write(this.indentation);
+        this.writeIndent(this.closureIndex);
+    }
+
+    public subIndent() {
+        this.writeIndent(this.closureIndex - 1);
     }
 
     public write(data: any) {
@@ -51,10 +53,6 @@ export class TypescriptWriter {
         }
 
         this.stream.write(data);
-    }
-
-    public writeLine(data: any) {
-        this.write(this.indentation + data + '\n');
     }
 
     public close() {

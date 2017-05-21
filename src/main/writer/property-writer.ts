@@ -100,7 +100,7 @@ function propertyToInstantiationString(property: apiscript.Property): string {
 
 }
 
-export function writePropertyImports(writer: TypescriptWriter, propertyHolder: apiscript.Entity | apiscript.Endpoint) {
+export function writePropertyImports(writer: TypescriptWriter, propertyHolder: apiscript.Entity | apiscript.Endpoint): number {
     let importTypes = new Set<string>();
 
     propertyHolder.forEachProperty((property) => {
@@ -112,8 +112,11 @@ export function writePropertyImports(writer: TypescriptWriter, propertyHolder: a
     });
 
     importTypes.forEach((importType) => {
-        writer.writeLine(`import {${importType}} from './${transform.pascalToDash(importType)}';`);
+        writer.write(`import {${importType}} from './${transform.pascalToDash(importType)}';`);
+        writer.newLine();
     });
+
+    return importTypes.size;
 }
 
 export function writeProperty(writer: TypescriptWriter, property: apiscript.Property) {

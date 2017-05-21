@@ -12,25 +12,34 @@ export function writeRequestClasses(api: API, libDir: string, mainWriter: Typesc
         let url = transform.urlToDash(endpoint.url);
         let fileName = `${url}-${apiscript.requestMethodToString(endpoint.requestMethod).toLowerCase()}`;
 
-        mainWriter.writeLine(`import Request${index} from './request/${fileName}';`);
+        mainWriter.write(`import Request${index} from './request/${fileName}';`);
+        mainWriter.newLine();
 
         let writer = new TypescriptWriter(`${libDir}/request/${fileName}.ts`);
-        propertyWriter.writePropertyImports(writer, endpoint);
         writer.newLine();
+
+        let importCount = propertyWriter.writePropertyImports(writer, endpoint);
+        if (importCount > 0) { writer.newLine(); }
 
         writer.write('export class Request ');
         writer.openClosure();
+        writer.newLine();
 
-        writer.writeLine('public parameter = new Parameters();');
+        writer.indent();
+        writer.write('public parameter = new Parameters();');
+        writer.newLine();
 
         if (endpoint.requestType) {
-            writer.writeLine(`public body: ${propertyWriter.propertyTypeToString(endpoint.requestType)};`);
+            writer.indent();
+            writer.write(`public body: ${propertyWriter.propertyTypeToString(endpoint.requestType)};`);
+            writer.newLine();
         }
         writer.closeClosure();
-        writer.newLine();
+        writer.newLine(2);
 
         writer.write('export class Parameters ');
         writer.openClosure();
+        writer.newLine();
 
         endpoint.forEachProperty((property) => {
             propertyWriter.writeProperty(writer, property);
