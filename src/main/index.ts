@@ -3,12 +3,12 @@ import * as fs from 'fs';
 import * as del from 'del';
 import * as apiscript from "apiscript";
 import * as transform from "./util/text-transformers";
-import * as propertyWriter from "./writer/property-writer";
 
 import {TypescriptWriter} from "./writer/typescript-writer";
 import {writeRequestClasses} from "./writer/request-writer";
 import {writeResponseClasses} from "./writer/response-writer";
 import {writeEntityClasses} from "./writer/entity-writer";
+import {writeEnumClasses} from "./writer/enum-writer";
 
 export class ExpressGenerator implements apiscript.Generator {
 
@@ -22,35 +22,8 @@ export class ExpressGenerator implements apiscript.Generator {
         // remove old lib directory
         if (fs.existsSync(libDir)) { del.sync(libDir); }
 
-        api.forEachEnum((enumerator) => {
-            let name = enumerator.name;
-            let fileName = transform.pascalToDash(name);
-            let writer = new TypescriptWriter(`${libDir}/entity/${fileName}.ts`);
-
-            console.log(`Generating enum ${enumerator.name}`);
-
-            writer.newLine();
-            writer.write(`export const enum ${name} `);
-            writer.openClosure();
-            writer.newLine();
-
-            let enumCount = enumerator.valueCount;
-
-            enumerator.forEachValue((value, index) => {
-                writer.indent();
-                writer.write(value);
-
-                if (index < enumCount - 1) {
-                    writer.write(',');
-                }
-
-                writer.newLine();
-            });
-
-            writer.closeClosure();
-            writer.close();
-        });
-
+        // write enums and entities
+        writeEnumClasses(api, libDir);
         writeEntityClasses(api, libDir);
 
         let writer = new TypescriptWriter(`${libDir}/apiscript.ts`);
