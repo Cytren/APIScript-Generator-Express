@@ -8,6 +8,7 @@ import * as propertyWriter from "./writer/property-writer";
 import {TypescriptWriter} from "./writer/typescript-writer";
 import {writeRequestClasses} from "./writer/request-writer";
 import {writeResponseClasses} from "./writer/response-writer";
+import {writeEntityClasses} from "./writer/entity-writer";
 
 export class ExpressGenerator implements apiscript.Generator {
 
@@ -50,35 +51,7 @@ export class ExpressGenerator implements apiscript.Generator {
             writer.close();
         });
 
-        api.forEachEntity((entity) => {
-            let name = entity.name;
-            let fileName = transform.pascalToDash(name);
-            let writer = new TypescriptWriter(`${libDir}/entity/${fileName}.ts`);
-
-            console.log(`Generating entity ${entity.name}`);
-
-            writer.newLine();
-            let importCount = propertyWriter.writePropertyImports(writer, entity);
-            if (importCount > 0) { writer.newLine(); }
-
-            if (entity.inherits) {
-                writer.write(`import {${entity.inherits}} from './${transform.pascalToDash(entity.inherits)}';`);
-                writer.newLine(2);
-                writer.write(`export class ${name} extends ${entity.inherits} `);
-            } else {
-                writer.write(`export class ${name} `);
-            }
-
-            writer.openClosure();
-            writer.newLine();
-
-            entity.forEachProperty((property) => {
-                propertyWriter.writeProperty(writer, property);
-            });
-
-            writer.closeClosure();
-            writer.close();
-        });
+        writeEntityClasses(api, libDir);
 
         let writer = new TypescriptWriter(`${libDir}/apiscript.ts`);
         writer.newLine();

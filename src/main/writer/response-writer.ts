@@ -1,6 +1,6 @@
 
-import * as apiscript from 'apiscript';
-import * as transform from '../util/text-transformers';
+import * as apiscript from "apiscript";
+import * as transform from "../util/text-transformers";
 import * as propertyWriter from "./property-writer";
 
 import {API} from "apiscript";
@@ -53,8 +53,6 @@ export function writeResponseClasses(api: API, libDir: string, mainWriter: Types
 
             let returnString = propertyWriter.propertyTypeToString(returnType);
             let fieldName = returnType.isEntity ? transform.pascalToCamel(returnString) : 'values';
-
-            //writer.write(`public value(${fieldName}: ${returnString}) { this.response = ${fieldName}; }`);
 
             writer.write(`public value(${fieldName}: ${returnString}) `);
             writer.openClosure();
