@@ -1,13 +1,12 @@
 
 import {API} from "apiscript";
 import {TypescriptWriter} from "./typescript-writer";
+
 import {writeRequestClasses} from "./request-writer";
 import {writeResponseClasses} from "./response-writer";
+import {writeEndpointClasses} from "./endpoint-writer";
 
-import * as apiscript from "apiscript";
-import * as transform from "../util/text-transformers";
-
-export function writeIndexClass(api: API, libDir: string) {
+export function writeIndexClass(api: API, libDir: string, apiDir: string) {
 
     let writer = new TypescriptWriter(`${libDir}/apiscript.ts`);
     writer.newLine();
@@ -18,20 +17,13 @@ export function writeIndexClass(api: API, libDir: string) {
     writer.write('import * as bodyParser from "body-parser";');
     writer.newLine(2);
 
-    api.forEachEndpoint((endpoint, index) => {
-        let url = transform.urlToDash(endpoint.url);
-
-        writer.write(`import endpoint${index} from '../api/${url}-` +
-            `${apiscript.requestMethodToString(endpoint.requestMethod).toLowerCase()}';`);
-
-        writer.newLine();
-    });
-    writer.newLine();
-
     writeRequestClasses(api, libDir, writer);
     writer.newLine();
 
     writeResponseClasses(api, libDir, writer);
+    writer.newLine();
+
+    writeEndpointClasses(api, libDir, apiDir, writer);
     writer.newLine();
 
     writer.write(`export default function (app: express) `);

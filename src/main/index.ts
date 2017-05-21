@@ -24,7 +24,7 @@ export class ExpressGenerator implements apiscript.Generator {
         writeEntityClasses(api, libDir);
 
         // write index class
-        writeIndexClass(api, libDir);
+        writeIndexClass(api, libDir, apiDir);
 
         console.log('\nGeneration complete!');
     }
