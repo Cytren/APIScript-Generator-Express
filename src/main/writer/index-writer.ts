@@ -5,6 +5,10 @@ import {TypescriptWriter} from "./typescript-writer";
 import {writeRequestClasses} from "./request-writer";
 import {writeResponseClasses} from "./response-writer";
 import {writeEndpointClasses} from "./endpoint-writer";
+import {writeHandlerClasses} from "./handler-writer";
+
+import * as apiscript from 'apiscript';
+import * as transform from "../util/text-transformers";
 
 export function writeIndexClass(api: API, libDir: string, apiDir: string) {
 
@@ -17,14 +21,19 @@ export function writeIndexClass(api: API, libDir: string, apiDir: string) {
     writer.write('import * as bodyParser from "body-parser";');
     writer.newLine(2);
 
-    writeRequestClasses(api, libDir, writer);
-    writer.newLine();
+    api.forEachEndpoint((endpoint) => {
+        let url = transform.urlToDash(endpoint.url);
+        let functionName = transform.urlToCamel(endpoint.url);
+        let fileName = `${url}-${apiscript.requestMethodToString(endpoint.requestMethod).toLowerCase()}`;
 
-    writeResponseClasses(api, libDir, writer);
-    writer.newLine();
+        writer.write(`import ${functionName} from "./handler/${fileName}";`);
+        writer.newLine();
+    });
+    writer.newLine(1);
 
-    writeEndpointClasses(api, libDir, apiDir, writer);
-    writer.newLine();
+    writeRequestClasses(api, libDir);
+    writeResponseClasses(api, libDir);
+    writeEndpointClasses(api, apiDir);
 
     writer.write(`export default function (app: express) `);
     writer.openClosure();
@@ -33,6 +42,9 @@ export function writeIndexClass(api: API, libDir: string, apiDir: string) {
     writer.indent();
     writer.write(`let router = new Router();`);
     writer.newLine(2);
+
+    writeHandlerClasses(api, libDir, writer);
+    writer.newLine();
 
     writer.indent();
     writer.write(`router.use('/', (request, router) => `);

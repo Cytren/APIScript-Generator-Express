@@ -7,14 +7,11 @@ import * as propertyWriter from "./property-writer";
 import {API} from "apiscript";
 import {TypescriptWriter} from "./typescript-writer";
 
-export function writeRequestClasses(api: API, libDir: string, mainWriter: TypescriptWriter) {
+export function writeRequestClasses(api: API, libDir: string) {
 
-    api.forEachEndpoint((endpoint, index) => {
+    api.forEachEndpoint((endpoint) => {
         let url = transform.urlToDash(endpoint.url);
         let fileName = `${url}-${apiscript.requestMethodToString(endpoint.requestMethod).toLowerCase()}`;
-
-        mainWriter.write(`import Request${index} from './request/${fileName}';`);
-        mainWriter.newLine();
 
         let writer = new TypescriptWriter(`${libDir}/request/${fileName}.ts`);
         writer.newLine();

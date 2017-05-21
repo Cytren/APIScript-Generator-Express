@@ -17,6 +17,10 @@ export abstract class BasicResponse implements Response {
         this._object = value;
     }
 
+    public get hasResponse(): boolean {
+        return this._object != null;
+    }
+
     public error(message: string) {
         this._object = { error: message };
     }

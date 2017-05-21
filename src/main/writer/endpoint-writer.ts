@@ -6,17 +6,13 @@ import * as transform from "../util/text-transformers";
 import {API} from "apiscript";
 import {TypescriptWriter} from "./typescript-writer";
 
-export function writeEndpointClasses(api: API, libDir: string, apiDir: string, mainWriter: TypescriptWriter) {
+export function writeEndpointClasses(api: API, apiDir: string) {
 
-    api.forEachEndpoint((endpoint, index) => {
+    api.forEachEndpoint((endpoint) => {
 
         let url = transform.urlToDash(endpoint.url);
         let fileName = `${url}-${apiscript.requestMethodToString(endpoint.requestMethod).toLowerCase()}`;
-
         let methodString = apiscript.requestMethodToString(endpoint.requestMethod).toUpperCase();
-
-        mainWriter.write(`import endpoint${index} from '../api/${fileName};`);
-        mainWriter.newLine();
 
         // only generate if this endpoint doesn't already exist
         if (fs.existsSync(`${apiDir}/${fileName}.ts`)) { return; }

@@ -7,12 +7,28 @@ function isLowerCase(value: string): boolean {
     return !isUpperCase(value);
 }
 
-export function urlToDash(name: string) {
-    return name.replace(/\//g, '-');
+export function urlToDash(url: string) {
+    return url.replace(/\//g, '-');
 }
 
-export function urlToUnderscore(name: string) {
-    return name.replace(/\//g, '_');
+export function urlToUnderscore(url: string) {
+    return url.replace(/\//g, '_');
+}
+
+export function urlToCamel(url: string): string {
+    if (url.length < 1) { return url; }
+    let result = (url.charAt(0) === '/') ? '' : url.charAt(0);
+
+    for (let i = 1; i < url.length; i++) {
+        let lastCharacter = url.charAt(i - 1);
+        let character = url.charAt(i);
+
+        if (character !== '/') {
+            result += (lastCharacter === '/') ? character.toUpperCase() : character;
+        }
+    }
+
+    return result;
 }
 
 function pascalTransform(value: string, transform: string): string {
