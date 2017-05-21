@@ -21,7 +21,7 @@ export function writeRequestClasses(api: API, libDir: string, mainWriter: Typesc
         let importCount = propertyWriter.writePropertyImports(writer, endpoint);
         if (importCount > 0) { writer.newLine(); }
 
-        writer.write('export class Request ');
+        writer.write('export default class Request ');
         writer.openClosure();
         writer.newLine();
 

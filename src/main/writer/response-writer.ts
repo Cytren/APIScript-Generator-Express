@@ -12,7 +12,7 @@ export function writeResponseClasses(api: API, libDir: string, mainWriter: Types
         let url = transform.urlToDash(endpoint.url);
         let fileName = `${url}-${apiscript.requestMethodToString(endpoint.requestMethod).toLowerCase()}`;
 
-        mainWriter.write(`import Request${index} from './response/${fileName}';`);
+        mainWriter.write(`import Response${index} from './response/${fileName}';`);
         mainWriter.newLine();
 
         let writer = new TypescriptWriter(`${libDir}/response/${fileName}.ts`);
@@ -44,7 +44,7 @@ export function writeResponseClasses(api: API, libDir: string, mainWriter: Types
         writer.write(`import {${inheritanceType}} from './response';`);
         writer.newLine(2);
 
-        writer.write(`export class Response extends ${inheritanceType} `);
+        writer.write(`export default class Response extends ${inheritanceType} `);
         writer.openClosure();
 
         if (returnType != null && (returnType.isEntity || returnType.isCollection)) {

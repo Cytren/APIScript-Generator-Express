@@ -13,13 +13,15 @@ export function writeEndpointClasses(api: API, libDir: string, apiDir: string, m
         let url = transform.urlToDash(endpoint.url);
         let fileName = `${url}-${apiscript.requestMethodToString(endpoint.requestMethod).toLowerCase()}`;
 
+        let methodString = apiscript.requestMethodToString(endpoint.requestMethod).toUpperCase();
+
         mainWriter.write(`import endpoint${index} from '../api/${fileName};`);
         mainWriter.newLine();
 
         // only generate if this endpoint doesn't already exist
         if (fs.existsSync(`${apiDir}/${fileName}.ts`)) { return; }
 
-        console.log(`Generating endpoint ${apiscript.requestMethodToString(endpoint.requestMethod).toUpperCase()} ${endpoint.url}`);
+        console.log(`Generating endpoint ${methodString} ${endpoint.url}`);
 
         let writer = new TypescriptWriter(`${apiDir}/${fileName}.ts`);
         writer.newLine();
@@ -35,7 +37,7 @@ export function writeEndpointClasses(api: API, libDir: string, apiDir: string, m
         writer.newLine();
 
         writer.indent();
-        writer.write(`response.error('The endpoint has not been implemented yet.');`);
+        writer.write(`response.error("The endpoint ${methodString} '${endpoint.url}' has not been implemented yet.");`);
         writer.newLine();
 
         writer.subIndent();
