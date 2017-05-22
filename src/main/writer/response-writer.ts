@@ -41,7 +41,7 @@ export function writeResponseClasses(api: API, libDir: string) {
         writer.write(`import {${inheritanceType}} from './response';`);
         writer.newLine(2);
 
-        writer.write(`export default class Response extends ${inheritanceType} `);
+        writer.write(`export class Response extends ${inheritanceType} `);
         writer.openClosure();
 
         if (returnType != null && (returnType.isEntity || returnType.isCollection)) {

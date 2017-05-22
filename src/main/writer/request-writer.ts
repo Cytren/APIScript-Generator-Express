@@ -19,7 +19,7 @@ export function writeRequestClasses(api: API, libDir: string) {
         let importCount = propertyWriter.writePropertyImports('../entity', writer, endpoint);
         if (importCount > 0) { writer.newLine(); }
 
-        writer.write('export default class Request ');
+        writer.write('export class Request ');
         writer.openClosure();
         writer.newLine();
 
