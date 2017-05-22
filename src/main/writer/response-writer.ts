@@ -10,7 +10,7 @@ export function writeResponseClasses(api: API, libDir: string) {
 
     api.forEachEndpoint((endpoint) => {
         let url = transform.urlToDash(endpoint.url);
-        let fileName = `${url}-${apiscript.requestMethodToString(endpoint.requestMethod).toLowerCase()}`;
+        let fileName = `${url}-${apiscript.RequestMethod[endpoint.requestMethod].toLowerCase()}`;
 
         let writer = new TypescriptWriter(`${libDir}/response/${fileName}.ts`);
         writer.newLine();

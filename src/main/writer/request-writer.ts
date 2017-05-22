@@ -11,7 +11,7 @@ export function writeRequestClasses(api: API, libDir: string) {
 
     api.forEachEndpoint((endpoint) => {
         let url = transform.urlToDash(endpoint.url);
-        let fileName = `${url}-${apiscript.requestMethodToString(endpoint.requestMethod).toLowerCase()}`;
+        let fileName = `${url}-${apiscript.RequestMethod[endpoint.requestMethod].toLowerCase()}`;
 
         let writer = new TypescriptWriter(`${libDir}/request/${fileName}.ts`);
         writer.newLine();

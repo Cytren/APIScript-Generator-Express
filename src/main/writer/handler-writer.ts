@@ -10,8 +10,8 @@ export function writeHandlerClasses(api: API, libDir: string, mainWriter: Typesc
 
     api.forEachEndpoint((endpoint) => {
         let url = transform.urlToDash(endpoint.url);
-        let fileName = `${url}-${apiscript.requestMethodToString(endpoint.requestMethod).toLowerCase()}`;
-        let method = apiscript.requestMethodToString(endpoint.requestMethod).toLowerCase();
+        let fileName = `${url}-${apiscript.RequestMethod[endpoint.requestMethod].toLowerCase()}`;
+        let method = apiscript.RequestMethod[endpoint.requestMethod].toLowerCase();
 
         let subURL = endpoint.url.substring(api.name.length + 1);
 
