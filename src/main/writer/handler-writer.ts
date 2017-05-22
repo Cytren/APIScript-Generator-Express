@@ -85,12 +85,6 @@ export function writeHandlerClasses(api: API, libDir: string, mainWriter: Typesc
             let type = endpoint.requestType;
             writer.indent();
 
-            `try {
-                req.body = parse_account(request.body);
-            } catch (e) {
-                res.error(e.message);
-            }`;
-
             writer.write(`try `);
             writer.openClosure();
             writer.newLine();
