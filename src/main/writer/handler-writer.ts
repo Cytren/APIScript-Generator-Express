@@ -13,8 +13,10 @@ export function writeHandlerClasses(api: API, libDir: string, mainWriter: Typesc
         let fileName = `${url}-${apiscript.requestMethodToString(endpoint.requestMethod).toLowerCase()}`;
         let method = apiscript.requestMethodToString(endpoint.requestMethod).toLowerCase();
 
+        let subURL = endpoint.url.substring(api.name.length + 1);
+
         mainWriter.indent();
-        mainWriter.write(`router.${method}('/${endpoint.url}', ${transform.urlToCamel(endpoint.url)});`);
+        mainWriter.write(`router.${method}('/${subURL}', ${transform.urlToCamel(endpoint.url)});`);
         mainWriter.newLine();
 
         let writer = new TypescriptWriter(`${libDir}/handler/${fileName}.ts`);
