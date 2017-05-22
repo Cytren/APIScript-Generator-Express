@@ -1,6 +1,6 @@
 
 // takes a primitive value and returns it, used for parsing collections
-function parsePrimitive(data: number | boolean | string): number | boolean | string {
+export function parsePrimitive(data: number | boolean | string): number | boolean | string {
     return data;
 }
 
@@ -19,7 +19,7 @@ export function parseList<T>(parse: (data) => T): (data) => T[] {
 }
 
 // takes a parse function of type T and returns a function that parses type Set<T>
-function parseSet<T>(parse: (data) => T): (data) => Set<T> {
+export function parseSet<T>(parse: (data) => T): (data) => Set<T> {
 
     return (data) => {
         let result = new Set<T>();
@@ -33,7 +33,7 @@ function parseSet<T>(parse: (data) => T): (data) => Set<T> {
 }
 
 // takes two parse functions of type K and V and returns a function that parses type Map<K, V>
-function parseMap<K, V>(parseKey: (data) => K, parseValue: (data) => V): (data) => Map<K, V> {
+export function parseMap<K, V>(parseKey: (data) => K, parseValue: (data) => V): (data) => Map<K, V> {
 
     return (data) => {
         let result = new Map<K, V>();

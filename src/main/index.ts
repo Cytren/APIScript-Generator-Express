@@ -1,7 +1,9 @@
 
 import * as fs from "fs";
+import * as path from "path";
 import * as del from "del";
 import * as apiscript from "apiscript";
+import * as shell from "shelljs";
 
 import {writeEntityClasses} from "./writer/entity-writer";
 import {writeEnumClasses} from "./writer/enum-writer";
@@ -25,6 +27,18 @@ export class ExpressGenerator implements apiscript.Generator {
 
         // write index class
         writeIndexClass(api, libDir, apiDir);
+
+        // get inject dir
+        let injectDir = path.resolve(__dirname, '/inject');
+        if (!fs.existsSync(injectDir)) { injectDir = path.resolve(__dirname, '../../src/inject'); }
+
+        // make inject output dir
+        shell.mkdir(libDir + '/core/');
+
+        // copy inject files
+        fs.readdirSync(injectDir).forEach(file => {
+            shell.cp(injectDir + '/' + file, libDir + '/core/' + file);
+        });
 
         console.log('\nGeneration complete!');
     }

@@ -17,9 +17,9 @@ gulp.task('build', ['clean:build'], function() {
 
     var config = typescript.createProject('tsconfig.json');
 
-    return gulp.src('src/**/*.ts')
+    return gulp.src('src/main/**/*.ts')
         .pipe(config())
-        .pipe(gulp.dest('build'));
+        .pipe(gulp.dest('build/main'));
 });
 
 gulp.task('package:package.json', function() {
@@ -35,6 +35,12 @@ gulp.task('package:license', function() {
         .pipe(gulp.dest('package'));
 });
 
+gulp.task('package:injects', function() {
+
+    return gulp.src('src/inject/**/*')
+        .pipe(gulp.dest('package/inject'));
+});
+
 gulp.task('package:src', function() {
 
     return gulp.src('build/main/**/*')
@@ -42,4 +48,6 @@ gulp.task('package:src', function() {
 });
 
 gulp.task('clean', ['clean:build', 'clean:package']);
-gulp.task('package', sequence('clean:package', 'build', 'package:src', 'package:license', 'package:package.json'));
+
+gulp.task('package', sequence('clean:package', 'build', 'package:src',
+          'package:license', 'package:package.json', 'package:injects'));
