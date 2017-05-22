@@ -31,14 +31,14 @@ export function writeResponseClasses(api: API, libDir: string) {
             let propertyTypes = propertyUtil.calculatePropertyTypeNames(returnType);
 
             propertyTypes.forEach((type) => {
-                writer.write(`import {${type}} from './entity/${transform.pascalToDash(type)}';`);
+                writer.write(`import {${type}} from '../entity/${transform.pascalToDash(type)}';`);
                 writer.newLine();
             });
 
             inheritanceType = 'BasicResponse';
         }
 
-        writer.write(`import {${inheritanceType}} from './response';`);
+        writer.write(`import {${inheritanceType}} from '../core/response';`);
         writer.newLine(2);
 
         writer.write(`export class Response extends ${inheritanceType} `);

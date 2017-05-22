@@ -57,7 +57,7 @@ function writeParseFunction(entity: Entity, libDir: string, name: string, fileNa
     writer.write(`import {${name}} from '../entity/${fileName}';`);
     writer.newLine();
 
-    writer.write(`import {parsePrimitive, parseList, parseSet, parseMap} from '../util/parse-util';`);
+    writer.write(`import {parsePrimitive, parseList, parseSet, parseMap} from '../core/parse-util';`);
     writer.newLine();
 
     let importTypes = propertyUtil.calculatePropertyImports(entity);

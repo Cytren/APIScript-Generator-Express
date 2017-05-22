@@ -20,19 +20,19 @@ export function writeHandlerClasses(api: API, libDir: string, mainWriter: Typesc
         let writer = new TypescriptWriter(`${libDir}/handler/${fileName}.ts`);
         writer.newLine();
 
-        writer.write(`import {parsePrimitive, parseList, parseSet, parseMap} from '../util/parse-util';`);
+        writer.write(`import {parsePrimitive, parseList, parseSet, parseMap} from '../core/parse-util';`);
         writer.newLine();
 
         writer.write(`import {Request as ExpressRequest, Response as ExpressResponse} from "express";`);
         writer.newLine(2);
 
-        writer.write(`import Request from "../request/${fileName}";`);
+        writer.write(`import {Request} from "../request/${fileName}";`);
         writer.newLine();
 
-        writer.write(`import Response from "../response/${fileName}";`);
+        writer.write(`import {Response} from "../response/${fileName}";`);
         writer.newLine();
 
-        writer.write(`import endpoint from "../api/${fileName}";`);
+        writer.write(`import endpoint from "../../api/${fileName}";`);
         writer.newLine(2);
 
         // add imports for return type
@@ -40,7 +40,7 @@ export function writeHandlerClasses(api: API, libDir: string, mainWriter: Typesc
             let importTypes = propertyUtil.calculatePropertyTypeNames(endpoint.returnType);
 
             importTypes.forEach((type) => {
-                writer.write(`import {parse${type}} from './${transform.pascalToDash(type)}';`);
+                writer.write(`import {parse${type}} from '../parse/${transform.pascalToDash(type)}';`);
                 writer.newLine();
             });
 
@@ -94,12 +94,12 @@ export function writeHandlerClasses(api: API, libDir: string, mainWriter: Typesc
             writer.write(`expressRequest.body = `);
 
             if (type.isPrimitive) {
-                writer.write(`express.body`);
+                writer.write(`expressRequest.body`);
             } else if (type.isEntity) {
-                writer.write(`parse${type}(express.body)`);
+                writer.write(`parse${type}(expressRequest.body)`);
             } else if (type.isCollection) {
                 writeParseEntity(type, writer);
-                writer.write(`(express.body)`);
+                writer.write(`(expressRequest.body)`);
             }
 
             writer.write(`;`);

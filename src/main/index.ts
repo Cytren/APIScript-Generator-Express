@@ -40,7 +40,7 @@ export class ExpressGenerator implements apiscript.Generator {
             shell.cp(injectDir + '/' + file, libDir + '/core/' + file);
         });
 
-        console.log('\nGeneration complete!');
+        console.log('Generation complete!');
     }
 }
 

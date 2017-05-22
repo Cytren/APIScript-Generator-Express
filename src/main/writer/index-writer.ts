@@ -35,19 +35,19 @@ export function writeIndexClass(api: API, libDir: string, apiDir: string) {
     writeResponseClasses(api, libDir);
     writeEndpointClasses(api, apiDir);
 
-    writer.write(`export default function (app: express) `);
+    writer.write(`export default function (app: Express) `);
     writer.openClosure();
     writer.newLine();
 
     writer.indent();
-    writer.write(`let router = new Router();`);
+    writer.write(`let router = Router();`);
     writer.newLine(2);
 
     writeHandlerClasses(api, libDir, writer);
     writer.newLine();
 
     writer.indent();
-    writer.write(`router.use('/', (request, router) => `);
+    writer.write(`router.use('/', (request, response) => `);
     writer.openClosure();
     writer.newLine();
 
