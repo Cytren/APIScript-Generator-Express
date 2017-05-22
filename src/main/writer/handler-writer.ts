@@ -37,9 +37,9 @@ export function writeHandlerClasses(api: API, libDir: string, mainWriter: Typesc
         writer.write(`import endpoint from "../../api/${fileName}";`);
         writer.newLine(2);
 
-        // add imports for return type
-        if (endpoint.returnType) {
-            let importTypes = propertyUtil.calculatePropertyTypeNames(endpoint.returnType);
+        // add imports for request type
+        if (endpoint.requestType) {
+            let importTypes = propertyUtil.calculatePropertyTypeNames(endpoint.requestType);
 
             importTypes.forEach((type) => {
                 writer.write(`import {parse${type}} from '../parse/${transform.pascalToDash(type)}';`);
@@ -78,8 +78,8 @@ export function writeHandlerClasses(api: API, libDir: string, mainWriter: Typesc
         });
         writer.newLine();
 
-        if (endpoint.returnType) {
-            let type = endpoint.returnType;
+        if (endpoint.requestType) {
+            let type = endpoint.requestType;
             writer.indent();
 
             `try {
