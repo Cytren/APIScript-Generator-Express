@@ -122,6 +122,10 @@ export function writeHandlerClasses(api: API, libDir: string, mainWriter: Typesc
 
         writer.indent();
         writer.write(`if (!response.hasResponse) { endpoint(request, response); }`);
+        writer.newLine(2);
+
+        writer.indent();
+        writer.write(`expressResponse.json(response.object);`);
         writer.newLine();
 
         writer.subIndent();
