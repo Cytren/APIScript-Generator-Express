@@ -1,8 +1,9 @@
 
 import * as apiscript from 'apiscript';
 import * as transform from '../util/text-transformers';
+import * as propertyUtil from '../util/property-util';
 
-import {API, Entity, PropertyType, ListPropertyType, SetPropertyType, MapPropertyType} from "apiscript";
+import {API, PropertyType, ListPropertyType, SetPropertyType, MapPropertyType} from "apiscript";
 import {TypescriptWriter} from "./typescript-writer";
 
 export function writeHandlerClasses(api: API, libDir: string, mainWriter: TypescriptWriter) {
@@ -34,6 +35,18 @@ export function writeHandlerClasses(api: API, libDir: string, mainWriter: Typesc
         writer.write(`import endpoint from "../api/${fileName}";`);
         writer.newLine(2);
 
+        // add imports for return type
+        if (endpoint.returnType) {
+            let importTypes = propertyUtil.calculatePropertyTypeNames(endpoint.returnType);
+
+            importTypes.forEach((type) => {
+                writer.write(`import {parse${type}} from './${transform.pascalToDash(type)}';`);
+                writer.newLine();
+            });
+
+            if (importTypes.size > 0) { writer.newLine(); }
+        }
+
         writer.write(`export default function handle(expressRequest: ExpressRequest, expressResponse: ExpressResponse) `);
         writer.openClosure();
         writer.newLine();
@@ -58,26 +71,54 @@ export function writeHandlerClasses(api: API, libDir: string, mainWriter: Typesc
 
         endpoint.forEachProperty((property) => {
             writer.indent();
-            let type = property.type;
-
-            if (type.isEntity || type.isCollection) {
-
-                if (type.isEntity) {
-                    writer.write(`request.parameter.${property.name} = parse${type}(expressRequest.query.${property.name});`);
-                } else if (type.isCollection) {
-
-                    writer.write(`request.parameter.${property.name} = `);
-                    writeParseEntity(type, writer);
-                    writer.write(`(expressRequest.query.${property.name});`);
-                }
-
-            } else {
-                writer.write(`request.parameter.${property.name} = expressRequest.query.${property.name};`);
-            }
-
+            writer.write(`request.parameter.${property.name} = expressRequest.query.${property.name};`);
             writer.newLine();
         });
         writer.newLine();
+
+        if (endpoint.returnType) {
+            let type = endpoint.returnType;
+            writer.indent();
+
+            `try {
+                req.body = parse_account(request.body);
+            } catch (e) {
+                res.error(e.message);
+            }`;
+
+            writer.write(`try `);
+            writer.openClosure();
+            writer.newLine();
+
+            writer.indent();
+            writer.write(`expressRequest.body = `);
+
+            if (type.isPrimitive) {
+                writer.write(`express.body`);
+            } else if (type.isEntity) {
+                writer.write(`parse${type}(express.body)`);
+            } else if (type.isCollection) {
+                writeParseEntity(type, writer);
+                writer.write(`(express.body)`);
+            }
+
+            writer.write(`;`);
+            writer.newLine();
+
+            writer.subIndent();
+            writer.closeClosure();
+            writer.write(` catch (e) `);
+            writer.openClosure();
+
+            writer.newLine();
+            writer.indent();
+            writer.write(`response.error(e.message);`);
+            writer.newLine();
+
+            writer.subIndent();
+            writer.closeClosure();
+            writer.newLine(2);
+        }
 
         writer.indent();
         writer.write(`if (!response.hasResponse) { endpoint(request, response); }`);
