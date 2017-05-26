@@ -15,20 +15,21 @@ export function writeResponseClasses(api: API, libDir: string) {
         let writer = new TypescriptWriter(`${libDir}/response/${fileName}.ts`);
         writer.newLine();
 
-        let returnType = endpoint.returnType;
+        let responseType = endpoint.responseType;
         let inheritanceType: string;
 
-        if (returnType == null) {
+        if (responseType == null) {
             inheritanceType = 'SuccessResponse';
-        } else if (returnType.isPrimitive) {
+        } else if (responseType.asPrimitive) {
+            let primitive = responseType.asPrimitive;
 
-            if (returnType.isInteger) { inheritanceType = 'IntegerResponse'; }
-            if (returnType.isFloat) { inheritanceType = 'FloatResponse'; }
-            if (returnType.isBoolean) { inheritanceType = 'BooleanResponse'; }
-            if (returnType.isString) { inheritanceType = 'StringResponse'; }
+            if (primitive.asInteger) { inheritanceType = 'IntegerResponse'; }
+            if (primitive.asFloat) { inheritanceType = 'FloatResponse'; }
+            if (primitive.asBoolean) { inheritanceType = 'BooleanResponse'; }
+            if (primitive.asString) { inheritanceType = 'StringResponse'; }
 
-        } else if (returnType.isEntity || returnType.isCollection) {
-            let propertyTypes = propertyUtil.calculatePropertyTypeNames(returnType);
+        } else if (responseType.asCustom || responseType.asCollection) {
+            let propertyTypes = propertyUtil.calculatePropertyTypeNames(responseType);
 
             propertyTypes.forEach((type) => {
                 writer.write(`import {${type}} from '../entity/${transform.pascalToDash(type)}';`);
@@ -44,12 +45,12 @@ export function writeResponseClasses(api: API, libDir: string) {
         writer.write(`export class Response extends ${inheritanceType} `);
         writer.openClosure();
 
-        if (returnType != null && (returnType.isEntity || returnType.isCollection)) {
+        if (responseType != null && (responseType.asCustom || responseType.asCollection)) {
             writer.newLine(2);
             writer.indent();
 
-            let returnString = propertyUtil.propertyTypeToString(returnType);
-            let fieldName = returnType.isEntity ? transform.pascalToCamel(returnString) : 'values';
+            let returnString = propertyUtil.propertyTypeToString(responseType);
+            let fieldName = responseType.asCustom ? transform.pascalToCamel(returnString) : 'values';
 
             writer.write(`public value(${fieldName}: ${returnString}) `);
             writer.openClosure();

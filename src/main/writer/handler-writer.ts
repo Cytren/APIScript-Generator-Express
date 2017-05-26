@@ -64,25 +64,30 @@ export function writeHandlerClasses(api: API, libDir: string, mainWriter: Typesc
         writer.write(`let response = new Response();`);
         writer.newLine(2);
 
-        endpoint.forEachProperty((property) => {
-            if (!property.isOptional && !property.defaultValue) {
-
-                writer.indent();
-                writer.write(`if (!response.hasResponse && !expressRequest.query.${property.name}) { response.error('${property.name} is missing'); }`);
-                writer.newLine();
-            }
-        });
-        writer.newLine();
-
-        endpoint.forEachProperty((property) => {
-            writer.indent();
-            writer.write(`request.parameter.${property.name} = expressRequest.query.${property.name};`);
-            writer.newLine();
-        });
-        writer.newLine();
-
+        // endpoint only supports closure of primitive values for requestType
         if (endpoint.requestType) {
-            let type = endpoint.requestType;
+
+            endpoint.requestType.asClosure.forEachProperty((property) => {
+                if (!property.isOptional && !property.defaultValue) {
+
+                    // only add the error response, if not response has been set i.e no error has already occurred
+                    writer.indent();
+                    writer.write(`if (!response.hasResponse && !expressRequest.query.${property.name}) { response.error('${property.name} is missing'); }`);
+                    writer.newLine();
+                }
+            });
+            writer.newLine();
+
+            endpoint.requestType.asClosure.forEachProperty((property) => {
+                writer.indent();
+                writer.write(`request.parameter.${property.name} = expressRequest.query.${property.name};`);
+                writer.newLine();
+            });
+            writer.newLine();
+        }
+
+        if (endpoint.bodyType) {
+            let type = endpoint.bodyType;
             writer.indent();
 
             writer.write(`try `);
@@ -92,11 +97,11 @@ export function writeHandlerClasses(api: API, libDir: string, mainWriter: Typesc
             writer.indent();
             writer.write(`expressRequest.body = `);
 
-            if (type.isPrimitive) {
+            if (type.asPrimitive) {
                 writer.write(`expressRequest.body`);
-            } else if (type.isEntity) {
+            } else if (type.asCustom) {
                 writer.write(`parse${type}(expressRequest.body)`);
-            } else if (type.isCollection) {
+            } else if (type.asCollection) {
                 writeParseEntity(type, writer);
                 writer.write(`(expressRequest.body)`);
             }
@@ -136,25 +141,26 @@ export function writeHandlerClasses(api: API, libDir: string, mainWriter: Typesc
 
 function writeParseEntity(type: PropertyType, writer: TypescriptWriter) {
 
-    if (type.isEntity) {
+    if (type.asCustom) {
         writer.write(`parse${type}`);
-    } else if (type.isCollection) {
+    } else if (type.asCollection) {
+        let collection = type.asCollection;
 
-        if (type.isList) {
+        if (collection.asList) {
             let list = type as ListPropertyType;
 
             writer.write('parseList(');
             writeParseEntity(list.type, writer);
             writer.write(')');
 
-        } else if (type.isSet) {
+        } else if (collection.asSet) {
             let set = type as SetPropertyType;
 
             writer.write('parseSet(');
             writeParseEntity(set.type, writer);
             writer.write(')');
 
-        } else if (type.isMap) {
+        } else if (collection.asMap) {
             let map = type as MapPropertyType;
 
             writer.write('parseMap(');
@@ -164,13 +170,14 @@ function writeParseEntity(type: PropertyType, writer: TypescriptWriter) {
             writer.write(')');
         }
 
-    } else if (type.isPrimitive) {
+    } else if (type.asPrimitive) {
+        let primitive = type.asPrimitive;
 
-        if (type.isInteger || type.isFloat) {
+        if (primitive.asInteger || primitive.asFloat) {
             writer.write(`parseNumber`);
-        } else if (type.isBoolean) {
+        } else if (primitive.asBoolean) {
             writer.write(`parseBoolean`);
-        } else if (type.isString) {
+        } else if (primitive.asString) {
             writer.write(`parseString`);
         }
     }

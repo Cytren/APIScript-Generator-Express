@@ -14,7 +14,7 @@ export function writeEnumClasses(api: API, libDir: string) {
         console.log(`Generating enum ${enumerator.name}`);
 
         writer.newLine();
-        writer.write(`export const enum ${name} `);
+        writer.write(`export enum ${name} `);
         writer.openClosure();
         writer.newLine();
 

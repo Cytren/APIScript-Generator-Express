@@ -25,7 +25,7 @@ function writeEntityClass(entity: Entity, libDir: string, name: string, fileName
     let writer = new TypescriptWriter(`${libDir}/entity/${fileName}.ts`);
     writer.newLine();
 
-    let importCount = propertyWriter.writePropertyImports('.', writer, entity);
+    let importCount = propertyWriter.writePropertyImports('.', writer, entity.closure);
     if (importCount > 0) { writer.newLine(); }
 
     if (entity.inherits) {
@@ -39,7 +39,7 @@ function writeEntityClass(entity: Entity, libDir: string, name: string, fileName
     writer.openClosure();
     writer.newLine();
 
-    entity.forEachProperty((property) => {
+    entity.closure.forEachProperty((property) => {
         propertyWriter.writeProperty(writer, property);
     });
 
@@ -63,7 +63,7 @@ function writeParseFunction(entity: Entity, libDir: string, name: string, fileNa
     writer.write(`import {parseList, parseSet, parseMap} from '../core/parse-util';`);
     writer.newLine();
 
-    let importTypes = propertyUtil.calculatePropertyImports(entity);
+    let importTypes = propertyUtil.calculatePropertyImports(entity.closure);
     importTypes.forEach((type) => {
         writer.write(`import {parse${type}} from './${transform.pascalToDash(type)}';`);
         writer.newLine();
@@ -79,7 +79,7 @@ function writeParseFunction(entity: Entity, libDir: string, name: string, fileNa
     writer.write(`let ${fileName} = new ${name}();`);
     writer.newLine(2);
 
-    entity.forEachProperty((property) => {
+    entity.closure.forEachProperty((property) => {
         if (!property.isOptional && !property.defaultValue) {
 
             writer.indent();
@@ -89,11 +89,11 @@ function writeParseFunction(entity: Entity, libDir: string, name: string, fileNa
     });
     writer.newLine();
 
-    entity.forEachProperty((property) => {
+    entity.closure.forEachProperty((property) => {
         writer.indent();
         let type = property.type;
 
-        if (type.isEntity || type.isCollection) {
+        if (type.asCustom || type.asCollection) {
             writer.newLine();
 
             writer.indent();
@@ -103,9 +103,9 @@ function writeParseFunction(entity: Entity, libDir: string, name: string, fileNa
 
             writer.indent();
 
-            if (type.isEntity) {
+            if (type.asCustom) {
                 writer.write(`${fileName}.${property.name} = parse${type}(${property.name});`);
-            } else if (type.isCollection) {
+            } else if (type.asCollection) {
 
                 writer.write(`${fileName}.${property.name} = `);
                 writeParseEntity(type, writer);
@@ -135,25 +135,26 @@ function writeParseFunction(entity: Entity, libDir: string, name: string, fileNa
 
 function writeParseEntity(type: PropertyType, writer: TypescriptWriter) {
 
-    if (type.isEntity) {
+    if (type.asCustom) {
         writer.write(`parse${type}`);
-    } else if (type.isCollection) {
+    } else if (type.asCollection) {
+        let collection = type.asCollection;
 
-        if (type.isList) {
+        if (collection.asList) {
             let list = type as ListPropertyType;
 
             writer.write('parseList(');
             writeParseEntity(list.type, writer);
             writer.write(')');
 
-        } else if (type.isSet) {
+        } else if (collection.asSet) {
             let set = type as SetPropertyType;
 
             writer.write('parseSet(');
             writeParseEntity(set.type, writer);
             writer.write(')');
 
-        } else if (type.isMap) {
+        } else if (collection.asMap) {
             let map = type as MapPropertyType;
 
             writer.write('parseMap(');
@@ -163,13 +164,14 @@ function writeParseEntity(type: PropertyType, writer: TypescriptWriter) {
             writer.write(')');
         }
 
-    } else if (type.isPrimitive) {
+    } else if (type.asPrimitive) {
+        let primitive = type.asPrimitive;
 
-        if (type.isInteger || type.isFloat) {
+        if (primitive.asInteger || primitive.asFloat) {
             writer.write(`parseNumber`);
-        } else if (type.isBoolean) {
+        } else if (primitive.asBoolean) {
             writer.write(`parseBoolean`);
-        } else if (type.isString) {
+        } else if (primitive.asString) {
             writer.write(`parseString`);
         }
     }
