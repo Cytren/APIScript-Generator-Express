@@ -78,7 +78,7 @@ export function propertyTypeToString(propertyType: apiscript.PropertyType): stri
         return result + ' }';
 
     } else {
-        return propertyType.toString();
+        return propertyType.asCustom.type.toString();
     }
 }
 
@@ -126,7 +126,7 @@ export function propertyToInstantiationString(property: apiscript.Property): str
         return result + ' }';
 
     } else {
-        return propertyType.toString();
+        return propertyType.asCustom.type.toString();
     }
 }
 
