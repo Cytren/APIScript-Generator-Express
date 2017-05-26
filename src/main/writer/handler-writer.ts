@@ -41,7 +41,7 @@ export function writeHandlerClasses(api: API, libDir: string, mainWriter: Typesc
         writer.newLine(2);
 
         let importCount = endpoint.bodyType ? writeParseImports(writer, endpoint.bodyType) : 0;
-        importCount += endpoint.responseType ? writeParseImports(writer, endpoint.responseType) : 0;
+        importCount += endpoint.respondType ? writeParseImports(writer, endpoint.respondType) : 0;
 
         if (importCount > 0) { writer.newLine(); }
 

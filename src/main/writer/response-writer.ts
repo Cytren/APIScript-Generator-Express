@@ -15,21 +15,21 @@ export function writeResponseClasses(api: API, libDir: string) {
         let writer = new TypescriptWriter(`${libDir}/response/${fileName}.ts`);
         writer.newLine();
 
-        let responseType = endpoint.responseType;
+        let respondType = endpoint.respondType;
         let inheritanceType: string;
 
-        if (responseType == null) {
+        if (respondType == null) {
             inheritanceType = 'SuccessResponse';
-        } else if (responseType.asPrimitive) {
-            let primitive = responseType.asPrimitive;
+        } else if (respondType.asPrimitive) {
+            let primitive = respondType.asPrimitive;
 
             if (primitive.asInteger) { inheritanceType = 'IntegerResponse'; }
             if (primitive.asFloat) { inheritanceType = 'FloatResponse'; }
             if (primitive.asBoolean) { inheritanceType = 'BooleanResponse'; }
             if (primitive.asString) { inheritanceType = 'StringResponse'; }
 
-        } else if (responseType.asCustom || responseType.asCollection) {
-            let propertyTypes = propertyUtil.calculatePropertyTypeNames(responseType);
+        } else if (respondType.asCustom || respondType.asCollection) {
+            let propertyTypes = propertyUtil.calculatePropertyTypeNames(respondType);
 
             propertyTypes.forEach((type) => {
                 writer.write(`import {${type}} from '../entity/${transform.pascalToDash(type)}';`);
@@ -45,12 +45,12 @@ export function writeResponseClasses(api: API, libDir: string) {
         writer.write(`export class Response extends ${inheritanceType} `);
         writer.openClosure();
 
-        if (responseType != null && (responseType.asCustom || responseType.asCollection)) {
+        if (respondType != null && (respondType.asCustom || respondType.asCollection)) {
             writer.newLine(2);
             writer.indent();
 
-            let returnString = propertyUtil.propertyTypeToString(responseType);
-            let fieldName = responseType.asCustom ? transform.dashToCamel(returnString) : 'values';
+            let returnString = propertyUtil.propertyTypeToString(respondType);
+            let fieldName = respondType.asCustom ? transform.dashToCamel(returnString) : 'values';
 
             writer.write(`public value(${fieldName}: ${returnString}) `);
             writer.openClosure();
