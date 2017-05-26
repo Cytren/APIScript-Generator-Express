@@ -75,7 +75,7 @@ function writeParseFunction(entity: Entity, libDir: string, name: string, fileNa
     writer.newLine();
 
     writer.indent();
-    writer.write(`let ${fileName} = new ${name}();`);
+    writer.write(`let ${fieldName} = new ${name}();`);
     writer.newLine(2);
 
     entity.closure.forEachProperty((property) => {
@@ -103,12 +103,12 @@ function writeParseFunction(entity: Entity, libDir: string, name: string, fileNa
             writer.indent();
 
             if (type.asCustom) {
-                writer.write(`${fileName}.${property.name} = ` +
+                writer.write(`${fieldName}.${property.name} = ` +
                     `parse${transform.dashToPascal(type.asCustom.type)}(${property.name});`);
 
             } else if (type.asCollection) {
 
-                writer.write(`${fileName}.${property.name} = `);
+                writer.write(`${fieldName}.${property.name} = `);
                 writeParseEntity(type, writer);
                 writer.write(`(body.${property.name});`);
             }
@@ -118,7 +118,7 @@ function writeParseFunction(entity: Entity, libDir: string, name: string, fileNa
             writer.closeClosure();
 
         } else {
-            writer.write(`${fileName}.${property.name} = body.${property.name};`);
+            writer.write(`${fieldName}.${property.name} = body.${property.name};`);
         }
 
         writer.newLine();
