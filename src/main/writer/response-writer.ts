@@ -50,7 +50,7 @@ export function writeResponseClasses(api: API, libDir: string) {
             writer.indent();
 
             let returnString = propertyUtil.propertyTypeToString(responseType);
-            let fieldName = responseType.asCustom ? transform.pascalToCamel(returnString) : 'values';
+            let fieldName = responseType.asCustom ? transform.dashToCamel(returnString) : 'values';
 
             writer.write(`public value(${fieldName}: ${returnString}) `);
             writer.openClosure();

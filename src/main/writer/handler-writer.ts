@@ -22,10 +22,10 @@ export function writeHandlerClasses(api: API, libDir: string, mainWriter: Typesc
         let writer = new TypescriptWriter(`${libDir}/handler/${fileName}.ts`);
         writer.newLine();
 
-        writer.write(`import {parseNumber, parseBoolean, parseString} from '../core/parse-util';`);
+        writer.write(`import {parseNumber, parseBoolean, parseString} from "../core/parse-util";`);
         writer.newLine();
 
-        writer.write(`import {parseList, parseSet, parseMap} from '../core/parse-util';`);
+        writer.write(`import {parseList, parseSet, parseMap} from "../core/parse-util";`);
         writer.newLine();
 
         writer.write(`import {Request as ExpressRequest, Response as ExpressResponse} from "express";`);
@@ -40,17 +40,10 @@ export function writeHandlerClasses(api: API, libDir: string, mainWriter: Typesc
         writer.write(`import endpoint from "../../api/${fileName}";`);
         writer.newLine(2);
 
-        // add imports for request type
-        if (endpoint.requestType) {
-            let importTypes = propertyUtil.calculatePropertyTypeNames(endpoint.requestType);
+        let importCount = endpoint.bodyType ? writeParseImports(writer, endpoint.bodyType) : 0;
+        importCount += endpoint.responseType ? writeParseImports(writer, endpoint.responseType) : 0;
 
-            importTypes.forEach((type) => {
-                writer.write(`import {parse${type}} from '../parse/${transform.pascalToDash(type)}';`);
-                writer.newLine();
-            });
-
-            if (importTypes.size > 0) { writer.newLine(); }
-        }
+        if (importCount > 0) { writer.newLine(); }
 
         writer.write(`export default function handle(expressRequest: ExpressRequest, expressResponse: ExpressResponse) `);
         writer.openClosure();
@@ -100,7 +93,7 @@ export function writeHandlerClasses(api: API, libDir: string, mainWriter: Typesc
             if (type.asPrimitive) {
                 writer.write(`expressRequest.body`);
             } else if (type.asCustom) {
-                writer.write(`parse${type}(expressRequest.body)`);
+                writer.write(`parse${transform.dashToPascal(type.asCustom.type)}(expressRequest.body)`);
             } else if (type.asCollection) {
                 writeParseEntity(type, writer);
                 writer.write(`(expressRequest.body)`);
@@ -181,4 +174,15 @@ function writeParseEntity(type: PropertyType, writer: TypescriptWriter) {
             writer.write(`parseString`);
         }
     }
+}
+
+export function writeParseImports(writer: TypescriptWriter, type: PropertyType): number {
+    let importTypes = propertyUtil.calculatePropertyImports(type);
+
+    importTypes.forEach((importType) => {
+        writer.write(`import {parse${importType}} from "../parse/${transform.pascalToDash(importType)}";`);
+        writer.newLine();
+    });
+
+    return importTypes.size;
 }

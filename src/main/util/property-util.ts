@@ -1,5 +1,6 @@
 
 import * as apiscript from "apiscript";
+import * as transform from "./text-transformers";
 
 export function calculatePropertyTypeNames(propertyType: apiscript.PropertyType, types = new Set<string>()): Set<string> {
 
@@ -78,7 +79,7 @@ export function propertyTypeToString(propertyType: apiscript.PropertyType): stri
         return result + ' }';
 
     } else {
-        return propertyType.asCustom.type.toString();
+        return transform.dashToPascal(propertyType.asCustom.type);
     }
 }
 
@@ -126,7 +127,7 @@ export function propertyToInstantiationString(property: apiscript.Property): str
         return result + ' }';
 
     } else {
-        return propertyType.asCustom.type.toString();
+        return transform.dashToPascal(propertyType.asCustom.type)
     }
 }
 

@@ -9,7 +9,6 @@ import {TypescriptWriter} from "./typescript-writer";
 export function writeEndpointClasses(api: API, apiDir: string) {
 
     api.forEachEndpoint((endpoint) => {
-
         let url = transform.urlToDash(endpoint.url);
         let fileName = `${url}-${apiscript.RequestMethod[endpoint.requestMethod].toLowerCase()}`;
         let methodString = apiscript.RequestMethod[endpoint.requestMethod].toUpperCase();

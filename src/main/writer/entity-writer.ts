@@ -9,11 +9,10 @@ import * as transform from "../util/text-transformers";
 export function writeEntityClasses(api: API, libDir: string) {
 
     api.forEachEntity((entity) => {
+        let name = transform.dashToPascal(entity.name);
+        let fileName = entity.name;
 
-        let name = entity.name;
-        let fileName = transform.pascalToDash(name);
-
-        console.log(`Generating entity ${entity.name}`);
+        console.log(`Generating entity ${name}`);
 
         writeEntityClass(entity, libDir, name, fileName);
         writeParseFunction(entity, libDir, name, fileName);
@@ -29,9 +28,9 @@ function writeEntityClass(entity: Entity, libDir: string, name: string, fileName
     if (importCount > 0) { writer.newLine(); }
 
     if (entity.inherits) {
-        writer.write(`import {${entity.inherits}} from './${transform.pascalToDash(entity.inherits)}';`);
+        writer.write(`import {${transform.dashToPascal(entity.inherits)}} from './${entity.inherits}';`);
         writer.newLine(2);
-        writer.write(`export class ${name} extends ${entity.inherits} `);
+        writer.write(`export class ${name} extends ${transform.dashToPascal(entity.inherits)} `);
     } else {
         writer.write(`export class ${name} `);
     }
@@ -52,7 +51,7 @@ function writeParseFunction(entity: Entity, libDir: string, name: string, fileNa
     let writer = new TypescriptWriter(`${libDir}/parse/${fileName}.ts`);
     writer.newLine();
 
-    let fieldName = transform.pascalToCamel(name);
+    let fieldName = transform.dashToCamel(fileName);
 
     writer.write(`import {${name}} from '../entity/${fileName}';`);
     writer.newLine();
@@ -104,7 +103,9 @@ function writeParseFunction(entity: Entity, libDir: string, name: string, fileNa
             writer.indent();
 
             if (type.asCustom) {
-                writer.write(`${fileName}.${property.name} = parse${type}(${property.name});`);
+                writer.write(`${fileName}.${property.name} = ` +
+                    `parse${transform.dashToPascal(type.asCustom.type)}(${property.name});`);
+
             } else if (type.asCollection) {
 
                 writer.write(`${fileName}.${property.name} = `);
@@ -135,8 +136,8 @@ function writeParseFunction(entity: Entity, libDir: string, name: string, fileNa
 
 function writeParseEntity(type: PropertyType, writer: TypescriptWriter) {
 
-    if (type.asCustom) {
-        writer.write(`parse${type}`);
+    if (type.asCustom || type.asClosure) {
+        writer.write(`parse${transform.dashToPascal(type.asCustom.type)}`);
     } else if (type.asCollection) {
         let collection = type.asCollection;
 

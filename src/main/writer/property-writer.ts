@@ -4,7 +4,7 @@ import * as transform from "../util/text-transformers";
 import * as propertyUtil from "../util/property-util";
 
 import {TypescriptWriter} from "./typescript-writer";
-import {ClosurePropertyType, PropertyType} from "apiscript";
+import {PropertyType} from "apiscript";
 
 export function writePropertyImports(dir: string, writer: TypescriptWriter, type: PropertyType): number {
     let importTypes = propertyUtil.calculatePropertyImports(type);

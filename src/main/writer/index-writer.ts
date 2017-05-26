@@ -11,7 +11,6 @@ import * as apiscript from 'apiscript';
 import * as transform from "../util/text-transformers";
 
 export function writeIndexClass(api: API, libDir: string, apiDir: string) {
-
     let writer = new TypescriptWriter(`${libDir}/apiscript.ts`);
     writer.newLine();
 
