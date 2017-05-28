@@ -22,7 +22,7 @@ export function writeIndexClass(api: API, libDir: string, apiDir: string) {
 
     api.forEachEndpoint((endpoint) => {
         let url = transform.urlToDash(endpoint.url);
-        let functionName = transform.urlToCamel(endpoint.url);
+        let functionName = transform.urlToCamel(endpoint.url) + apiscript.RequestMethod[endpoint.requestMethod];
         let fileName = `${url}-${apiscript.RequestMethod[endpoint.requestMethod].toLowerCase()}`;
 
         writer.write(`import ${functionName} from "./handler/${fileName}";`);

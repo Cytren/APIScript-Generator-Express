@@ -3,20 +3,21 @@ import * as apiscript from 'apiscript';
 import * as transform from '../util/text-transformers';
 import * as propertyUtil from '../util/property-util';
 
-import {API, PropertyType, ListPropertyType, SetPropertyType, MapPropertyType} from "apiscript";
+import {API, PropertyType, ListPropertyType, SetPropertyType, MapPropertyType, RequestMethod} from "apiscript";
 import {TypescriptWriter} from "./typescript-writer";
 
 export function writeHandlerClasses(api: API, libDir: string, mainWriter: TypescriptWriter) {
 
     api.forEachEndpoint((endpoint) => {
         let url = transform.urlToDash(endpoint.url);
-        let fileName = `${url}-${apiscript.RequestMethod[endpoint.requestMethod].toLowerCase()}`;
-        let method = apiscript.RequestMethod[endpoint.requestMethod].toLowerCase();
+        let fileName = `${url}-${RequestMethod[endpoint.requestMethod].toLowerCase()}`;
+        let method = RequestMethod[endpoint.requestMethod].toLowerCase();
 
         let subURL = endpoint.url.substring(api.name.length + 1);
 
         mainWriter.indent();
-        mainWriter.write(`router.${method}('/${subURL}', ${transform.urlToCamel(endpoint.url)});`);
+        mainWriter.write(`router.${method}('/${subURL}', ${transform.urlToCamel(endpoint.url)}` +
+        `${RequestMethod[endpoint.requestMethod]});`);
         mainWriter.newLine();
 
         let writer = new TypescriptWriter(`${libDir}/handler/${fileName}.ts`);

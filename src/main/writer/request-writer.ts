@@ -17,8 +17,8 @@ export function writeRequestClasses(api: API, libDir: string) {
         writer.newLine();
 
         let importCount = 0;
+        if (endpoint.requestType) { importCount += propertyWriter.writePropertyImports('../entity', writer, endpoint.requestType); }
         if (endpoint.bodyType) { importCount += propertyWriter.writePropertyImports('../entity', writer, endpoint.bodyType); }
-        if (endpoint.respondType) { importCount += propertyWriter.writePropertyImports('../entity', writer, endpoint.respondType); }
         if (importCount > 0) { writer.newLine(); }
 
         writer.write('export class Request ');
